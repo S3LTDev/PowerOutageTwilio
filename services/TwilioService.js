@@ -1,5 +1,3 @@
-// Create a singleton for a class that will be used to send SMS messages with a short code
-
 const twilio = require('twilio');
 
 class Twilio {
@@ -9,18 +7,17 @@ class Twilio {
         this.toPhoneNumber = null;
     }
 
-    setValues(accountSid, authToken, phoneNumber, toPhoneNumber) {
+    setValues(accountSid, authToken, phoneNumber) {
         this.client = twilio(accountSid, authToken);
         this.phoneNumber = phoneNumber;
-        this.toPhoneNumber = toPhoneNumber;
     }
 
     async sendSmsToMultipleNumbers(body, numbers) {
-        if (!this.client) {
-            throw new Error('Twilio client not set');
-        }
+        this.validateTwilioClient();
+
         console.log(`Sending SMS to ${numbers} with body: ${body}`);
-        for (let number of numbers) {
+
+        for (const number of numbers) {
             await this.client.messages.create({
                 body,
                 to: number,
@@ -30,15 +27,21 @@ class Twilio {
     }
 
     async sendSms(body) {
-        if (!this.client) {
-            throw new Error('Twilio client not set');
-        }
+        this.validateTwilioClient();
+
         console.log(`Sending SMS to ${this.toPhoneNumber} with body: ${body}`);
+
         return this.client.messages.create({
             body,
             to: this.toPhoneNumber,
             from: this.phoneNumber
         });
+    }
+
+    validateTwilioClient() {
+        if (!this.client) {
+            throw new Error('Twilio client not set');
+        }
     }
 }
 
@@ -48,7 +51,6 @@ class TwilioService {
     }
 
     /**
-     *
      * @returns {Twilio}
      */
     static getInstance() {

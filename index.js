@@ -1,39 +1,68 @@
-const {exec} = require("child_process");
-console.log("Initialising Twilio...")
+const { exec } = require("child_process");
+console.log("Initializing Twilio...");
 require('dotenv').config();
 const TwilioService = require('./services/TwilioService').getInstance();
-TwilioService.setValues(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN, process.env.TWILIO_PHONE_NUMBER, process.env.TWILIO_TO_PHONE_NUMBER);
-console.log("Twilio initialised")
-console.log("Checking power every 5 seconds...")
-let wasLastCheckNegative = false;
+
+TwilioService.setValues(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN, process.env.TWILIO_PHONE_NUMBER);
+console.log("Twilio initialized");
+console.log("Checking power every 5 seconds...");
+
+let oneCheck = false;
+let twoCheck = false;
+// These values are for double-checking before sending a message to make sure the power is actually out
+let powerOut = false;
 
 setInterval(async () => {
-    // Basically. In the same folder as this file there is a python script that checks the power of a device. I need to call that script and get the power value
     const { exec } = require('child_process');
     exec('python3 CurrentReading.py', (err, stdout, stderr) => {
         if (err) {
             console.error(err);
             return;
         }
-        // It returns like this: " 0.00 A" so I need to remove the " A" and the space
+
         let power = stdout.replace(' A', '');
-        // There is also a trailing space before the number so I need to remove that
         power = power.trim();
-        if (power.includes("-")) {
-            if(!wasLastCheckNegative) {
-                wasLastCheckNegative = true;
+        let powerNum = parseFloat(power);
+
+        if (isNaN(powerNum)) {
+            console.error("Power is not a number");
+            return;
+        }
+
+        let powerConnected = true;
+
+        if (powerNum < -0.25) {
+            // Sometimes, the power does go in the negatives even when it's connected
+            // This value is a safe value to use to check if the power is connected
+            powerConnected = false;
+        }
+
+        if (power.includes("-") && powerConnected === false) {
+            if (!oneCheck) {
+                oneCheck = true;
                 return;
             }
-            // If there is a - in the string then the power is negative and we need to send a message
-            TwilioService.sendSmsToMultipleNumbers(`Power to the boiler has been cut.`, [process.env.TWILIO_TO_PHONE_NUMBER, process.env.TWILIO_TO_PHONE_NUMBER_2]).then(() => {
-                exec('sudo shutdown -h now', (err, stdout, stderr) => {
-                    if (err) {
-                        console.error(err);
-                        return;
-                    }
-                    console.log(stdout);
-                });
+            if (!twoCheck) {
+                twoCheck = true;
+                return;
+            }
+            if (powerOut) {
+                return;
+                // We already know the power is out, so we don't need to send another message
+            }
+
+            TwilioService.sendSmsToMultipleNumbers(`Power has been cut.`, [process.env.TWILIO_TO_PHONE_NUMBER]).then(() => {
+                powerOut = true;
             });
+        } else {
+            oneCheck = false;
+            twoCheck = false;
+
+            if (powerOut) {
+                TwilioService.sendSmsToMultipleNumbers(`Power has been restored.`, [process.env.TWILIO_TO_PHONE_NUMBER]).then(() => {
+                    powerOut = false;
+                });
+            }
         }
     });
 }, 5000);

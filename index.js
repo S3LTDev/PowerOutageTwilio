@@ -12,6 +12,8 @@ let twoCheck = false;
 // These values are for double-checking before sending a message to make sure the power is actually out
 let powerOut = false;
 
+let numbersToText = [process.env.TWILIO_TO_PHONE_NUMBER];
+
 setInterval(async () => {
     const { exec } = require('child_process');
     exec('python3 CurrentReading.py', (err, stdout, stderr) => {
@@ -51,7 +53,7 @@ setInterval(async () => {
                 // We already know the power is out, so we don't need to send another message
             }
 
-            TwilioService.sendSmsToMultipleNumbers(`Power has been cut.`, [process.env.TWILIO_TO_PHONE_NUMBER]).then(() => {
+            TwilioService.sendSmsToMultipleNumbers(`Power has been cut.`, numbersToText).then(() => {
                 powerOut = true;
             });
         } else {
@@ -59,7 +61,7 @@ setInterval(async () => {
             twoCheck = false;
 
             if (powerOut) {
-                TwilioService.sendSmsToMultipleNumbers(`Power has been restored.`, [process.env.TWILIO_TO_PHONE_NUMBER]).then(() => {
+                TwilioService.sendSmsToMultipleNumbers(`Power has been restored.`, numbersToText).then(() => {
                     powerOut = false;
                 });
             }

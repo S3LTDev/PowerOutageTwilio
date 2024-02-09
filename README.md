@@ -51,6 +51,9 @@ This project is a power outage checker designed for a Raspberry Pi 4B equipped w
    Replace `your_account_sid`, `your_auth_token`, `your_twilio_phone_number`, and `your_phone_number` with your Twilio account SID, auth token, Twilio phone number, and your phone number, respectively.
    Ensure that you have the `TWILIO_TO_PHONE_NUMBER` phone number in the format `+1234567890` with the country code. You
    can set the `TWILIO_PHONE_NUMBER` as a short code or a long code, depending on your Twilio account settings.
+      
+   ## Multiple Numbers
+   If you would like to add more numbers to be notified, you can add them into the `.env` file and add them to the array on line `15` in `index.js`.
 
 ### UPS Hardware Assembly
 
@@ -89,6 +92,8 @@ PM2 is a process manager for Node.js applications that allows you to keep your a
    pm2 save
    ```
 
+You will now have the power outage checker running in the background and set to start on boot.
+You will get a message when the power goes out and when it comes back on.
 ## Usage
 
 The power outage checker will now run in the background, checking for power status changes and sending notifications via Twilio when necessary.

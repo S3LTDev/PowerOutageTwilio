@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/benjamint08/PowerOutageTwilio/issues"
   },
-  "homepage": "https://github.com/benjamint08/PowerOutageTwilio#readme"
+  "homepage": "https://github.com/benjamint08/PowerOutageTwilio#readme",
+  "dependencies": {
+    "dotenv": "^16.4.1",
+    "twilio": "^4.21.0"
+  }
 }

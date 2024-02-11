@@ -1,5 +1,7 @@
 # Power Outage Checker 🚀
 
+I have made an assembly video & installation video of this software! Watch it [Here](https://www.youtube.com/watch?v=xr8FTzMzNL4&ab_channel=LittleSmartHome)
+
 ## Overview
 
 This project is a power outage checker designed for a Raspberry Pi 4B equipped with a UPS hat, 2x lithium-ion batteries, and the necessary software dependencies. It utilizes a UPS hat to provide uninterrupted power to the Raspberry Pi during outages and a combination of Node.js and Python scripts to monitor and notify users of power status changes.

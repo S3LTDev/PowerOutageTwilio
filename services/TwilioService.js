@@ -1,17 +1,14 @@
 const twilio = require('twilio');
-
 class Twilio {
     constructor() {
         this.client = null;
         this.phoneNumber = null;
         this.toPhoneNumber = null;
     }
-
     setValues(accountSid, authToken, phoneNumber) {
         this.client = twilio(accountSid, authToken);
         this.phoneNumber = phoneNumber;
     }
-
     async sendSmsToMultipleNumbers(body, numbers) {
         this.validateTwilioClient();
 
@@ -25,7 +22,6 @@ class Twilio {
             });
         }
     }
-
     async sendSms(body) {
         this.validateTwilioClient();
 
@@ -37,14 +33,12 @@ class Twilio {
             from: this.phoneNumber
         });
     }
-
     validateTwilioClient() {
         if (!this.client) {
             throw new Error('Twilio client not set');
         }
     }
 }
-
 class TwilioService {
     constructor() {
         throw new Error('Use TwilioService.getInstance()');
@@ -60,5 +54,4 @@ class TwilioService {
         return TwilioService.instance;
     }
 }
-
 module.exports = TwilioService;
